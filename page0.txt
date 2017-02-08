@@ -1,0 +1,123 @@
+KD3	TAMZA			Add 5 to key
+	ACACC	5		Code each time
+	TCY	14		R-line pointer decremented
+	CALL	#ADDCARRY
+	BRANCH	KD2
+KEYDOWN	TCMIY	0		Reset debounce counter
+	LDX	1
+	TCY	14
+	TKM	
+	MNEZ			Double check key down (K lines <> 0)
+	BRANCH	KD1
+	LDX	0
+	BRANCH	CAR3		Key not down
+
+KD1	LDX	0
+	TCMIY	0		(0,14)=0
+	TCMIY	0		(0,15)=0
+	TCY	13
+	TMY			Y=(0,13)
+	RSTR			Reset present R-line
+	TCY	13
+	CLA	
+	ACACC	6		Put 6 in A
+	KNEZ			See if key is on VSS (pressed)
+	BRANCH	KD2		VSS
+	TMA	
+KD2	TAM	
+	TCY	13		Store 6 in R-line pointer if key is on VSS
+	BRANCH	KD3
+
+SUMSIT	LDX	ONE		Bump routine to calculate value of KP
+	TCY	VALUE	14	
+	TMA	
+	ALEC	2
+	BRANCH	ARND+5
+	ACACC	15
+	ALEC	3
+	BRANCH	ARND+5
+	ACACC	13
+	ALEC	4
+	BRANCH	ARND+5
+
+	ACACC	10
+ARND+5	ACACC	MINUS$1
+	LDX	ZERO
+	TDY	VALUE	14	
+	CALL	#ADDCARRY
+EVLSOUT	BL	KEYSVL
+
+TIMEUP	TCY	12		This routine uses carry to increment the rand/timeout counter
+	KNEZ	
+	BRANCH	CAR2		Key press detect
+TIMEUP1	LDX	3
+	TCY	8
+	BRANCH	CARRYON
+
+ADDCARRY	AMAACA=RAM+A	Carry for addition in ROM address section of RAM
+	BRANCH	CARRY
+	BRANCH	NOCARRY
+CARRY	TAMIYC			Carry
+CARRYON	IMAC			Increment RAM if carry
+	BRANCH	CARRY		Propagate carry to further RAM until none
+NOCARRY	TAM	
+	RETN	
+
+	TCY	12
+	TMA			RAM(12) -> A
+	ALEC	3		Is A <= 3 ?
+	BRANCH	CAR1		Yes
+OFF	TCY	13		No
+	RSTR			R-line 13 low: Kill power supply
+CAR1	LDX	0
+	BRANCH	CAR3
+CAR2	TMA	
+CAR4	TCY	10
+	TBIT	3		Test debounce counter
+	BRANCH	CAR5		Accept key if counter > 7
+	TCMIY	0		Reset debounce counter
+CAR3	BL	DISP/KB1
+CAR5	ALEC	13		See if speech is
+	BRANCH	CAR3		Finished (test talk counter=14)
+	BRANCH	KEYDOWN		Page 0
+
+
+GAME#3	LDX	8		RAM page: Random letter game
+	TCY	7
+	TMA	
+	ALEC	6
+	BRANCH	FIRST
+	BRANCH	GM3A
+FIRST	TCMIY	7
+	SBIT	1
+	CALLL	CLEAR
+GM3A	CALLL	CURLEVL
+	TCMIY	0		0080 contains address for random letter table
+	TCMIY	8		ROM address = 0080
+	CALLL	MEMADDR
+	CALLL	LOADRESS	Load 16bit data from ROM
+	LDX	3
+	TCY	9		(3,9) timeout counter
+	RBIT	3
+	TMA			A = rand(0,7)
+	LDX	1
+	TCY	11
+	CALL	#ADDCARRY	ROM Address += A<<4
+	LDX	3		(3,8) timeout counter
+	TCY	8
+	TMA			A = rand(0,F)
+	LDX	1
+	TCY	10
+	CALL	#ADDCARRY	ROM Address = 0x0080 + rand(0,127)
+	CALLL	MEMADDR
+	CALLL	OUTADDR2	Get LSD of random letter (read 4 bits)
+	LDX	0
+	TCY	14
+	TAM	
+	CALLL	OUTADDR2	Get MSD of random letter (read 4 bits)
+	LDX	0		Store like a keypress
+	TCY	15
+	TAM	
+	LDX	2
+	TCMIY	0
+	BL	TRANSFER	Says letter and puts it on display

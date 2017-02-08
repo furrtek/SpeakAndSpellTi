@@ -1,0 +1,37 @@
+ROM format:
+Address (hex bytes):	Description:
+00			Word count for level A
+01			Word count for level B
+02			Word count for level C
+03			Word count for level D
+04			Pointer to level A word list
+06			Pointer to level B word list
+08			Pointer to level C word list
+0A			Pointer to level D word list
+0C~3E			Pointers to speech for letters A~Z
+40			Pointer to speech for apostrophe
+42~54			Pointers to speech for numbers 0~9
+56			?
+58			Pointer to "that is correct" ?
+5A			Pointer to "you are correct"
+5C			Pointer to "that is right"
+5E			Pointer to "you are right"
+60			Pointer to pointer of phrase "spell..."
+62~6C			?
+6E			Pointer to "say it"
+70			Pointer to "I win"
+72			Pointer to "you win"
+74			Pointer to [corrupt]"is your score"
+76			Pointer to [corrupt]"your score"
+78			Pointer to tones 1
+7A			Pointer to tones 2
+7C			Pointer to tones 3
+7E			Pointer to tones 4
+80			Pointer to 128 random keycodes
+
+Words data:
+Nibble letter LSB
+Nibble letter MSB (bit 2 = 1 to indicate end of word)
+Pointer to speech data
+Links
+End with 0001 (01 00)

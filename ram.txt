@@ -1,0 +1,140 @@
+576 bits (72 bytes) of RAM in 9 pages ?
+
+Page 0:
+Nibble	Description
+0	Display buffer 2
+1	"
+2	"
+3	"
+4	"
+5	"
+6	"
+7	"
+8	GO flag ?
+9	?
+10	Debounce counter
+11	Cursor position
+12	Display loop counter
+13	R line pointer
+14	Key code LSB
+15	Key code MSB
+
+Page 1:
+Nibble	Description
+0	Display buffer 1
+1	"
+2	"
+3	"
+4	"
+5	"
+6	"
+7	"
+8	Loop counter
+9	"
+10	ROM address LSB
+11	...
+12	...
+13	ROM address MSB
+14	Raw key code (K lines)
+15	Key code MSB
+
+Page 2:
+Nibble	Description
+0	Spelling 2
+1	"
+2	"
+3	"
+4	"
+5	"
+6	"
+7	"
+8	Timer/counter
+9	"
+10	"
+11	Flag ?
+12	?
+13	Guess counter
+14	Tone related ?
+15	RETNSRCH flag
+
+Page 3:
+Nibble	Description
+0	Spelling 1
+1	"
+2	"
+3	"
+4	"
+5	"
+6	"
+7	"
+8	Timer/counter/Rand
+9	"
+10	"
+11	Timeout counter LSB
+12	Timeout counter MSB
+13	?
+14	?
+15	Talk flag ?
+
+Page 4:
+Nibble	Description
+0	Rand word # MSB
+1	"
+2	"
+3	"
+4	"
+5	"
+6	"
+7	"
+8	"
+9	"
+10	Residue word MSB
+11	?
+12	?
+13	?
+14	Next first word MSB
+15	Word count MSB
+
+Page 5:
+Nibble	Description
+0	Rand word # LSB
+1	"
+2	"
+3	"
+4	"
+5	"
+6	"
+7	"
+8	"
+9	"
+10	Residue word MSB ?
+11	?
+12	?
+13	?
+14	Next first word LSB
+15	Word count LSB
+
+Page 6:
+Link list MSBs
+
+Page 7:
+Link list LSBs
+
+Page 8:
+Nibble	Description
+0	Pointer to list of random word #s
+1	Loading counter
+2	?
+3	Pointer ?
+4	?
+5	?
+6	?
+7	?
+8	?
+9	?
+10	ROM address ?
+11	"
+12	"
+13	"
+14	Loop counter for CALADDR
+15	?

@@ -1,0 +1,132 @@
+START				Entry point
+	TCY	15		Reset all 0~15R lines
+LOOPSST	RSTR	
+	DYN	
+	BRANCH	LOOPSST
+
+	TCY	13
+	SETR			R-line 13 high (Maintain power on)
+	TCY	15
+	RETN			Can continue
+
+	CLA	
+	LDX	8
+	CALL	FILSLOOP	Empy DAM
+	LDX	SEVEN
+	CALL	FILSLOOP	Empties RAM files 0~7 (8*16 nibbles)
+	LDX	SIX
+	CALL	FILSLOOP
+	LDX	FIVE
+	CALL	FILSLOOP
+	LDX	FOUR
+	CALL	FILSLOOP
+	LDX	THREE
+	CALL	FILSLOOP
+	LDX	TWO
+	CALL	FILSLOOP
+	LDX	ONE
+	CALL	FILSLOOP
+	LDX	ZERO
+FILSLOOP	TAMDYN		Fills file with contents of acc
+	BRANCH	FILSLOOP
+	RETN			Can continue
+
+DSP7	CALLL	CLEAR
+	CALLL	DIFFSLY		Display diff level A spell mode (« SPE * »)
+	CLA			A=0
+	TCY	11
+	RSTR			R11 OFF
+	TCY	12
+	SETR			R12 ON Chip select
+	TCY	10
+	SETR			Pulse R10 x2
+	RSTR	
+	SETR	
+	RSTR	
+	TCY	11
+	SETR			R11 ON
+	TCY	10
+	SETR			Pulse R10
+	RSTR	
+	CALLL	MEMDRED		Dummy read
+	BL	TONES		Page 11
+
+
+DISP/KB	LDX	3		Display contents of display buffer and checks for key press
+	TCY	11
+	TCMIY	0		(3,11)=0 Reset timeout counter
+	RSTR			R12 OFF
+	TCMIY	0		(3,12)=0	
+	CLA			Reset debounce counter
+DSP1	TCY	12
+	LDX	0
+	TAMIYC			(0,12)=A Store debounce counter
+	TCMIY	0		(0,13)=0 Reset R-line pointer
+
+	TCY	15
+	SETR			R15 ON Turn filament on
+	TCY	0
+DSP2	LDX	1		Load segment PLA...
+	TMA			A=(1,Y)	
+	TDO			First segments
+	LDX	0
+	TMA			A=(0,Y)	
+	MNEA			Set status = 1
+	TDO			Second segments
+	SETR			Turn on new R-line
+	TCY	15
+	RSTR			R15 OFF turn filament off
+	BL	TIMEUP		Increment random number generator
+
+DISP/KB1
+	TCY	13		Always called with X=0 ?
+	IMAC			Increment R-line pointer
+	TAM	
+	TCY	15
+	SETR			R15 ON Turn filament on
+	TAY			Y=A	
+	DYN			Y--	
+	RSTR			Reset last R-line
+	IYCY++	
+	YNEC	8		Scan complete ? (0~7 characters)
+	BRANCH	DSP2		No
+	TCY	15		Yes
+	RSTR			R15 OFF turn filament off
+	CALLL	TIMEUP1		Increment random number/timeout counter
+	LDX	0		One extra time, total=9 per display scan
+	TCY	10
+	IMAC			Increment debounce counter
+	BRANCH	DSP3
+	TAM	
+DSP3	TCY	12
+	IMAC	
+	ALEC	10
+	BRANCH	DSP1		Display loop 8 characters 10 times
+	LDP	14
+	TCY	15
+	LDX	3
+	TBIT	0
+	BRANCH	SPKREG+1	Test talk, SPKREG+1 if speaking
+	LDP	8
+	TCY	14
+	TYA	
+	TBIT	0
+	BRANCH	DISPL+1		DISPL+1 if bit 0 of (3,14)
+	LDP	15
+	BRANCH	DSP1
+
+KEYSEVL	LDX	0
+	TCY	14		Put LSD of key code in Acc
+	TMA	
+	TCY	15
+	LDP	13
+	TBIT	0
+	BRANCH	KEY1
+	BRANCH	KEY00
+
+SETBIT3	LDX	8
+	TCY	2
+	SBIT	3		Set bit 3
+	RETN	
+
+	END	

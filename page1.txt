@@ -1,0 +1,133 @@
+NOTFULL	TAMIYC			Store keycode's MSB in display buffer
+	TCMIY	1	
+	TCY	14	
+	TMA			A=(0,14)	
+	TCY	11	
+	TMY			Y=(0,11) cursor pos	
+	LDX	1	
+	TAMIYC			Put LSB of keycode in the display buffer	
+	TCMIY	12		- ?
+	LDX	0	
+	TCY	NXT$DSP		Page 11	
+	IMAC			Increment cursor pos	
+	TAM
+	BL	NO$TRANS	Page 4	
+	
+GO	BL	RANDOM		Go routine decides which mode you're in and branches to that mode, else goes to disp/kb	
+	
+RANRTN	LDX	8DAM	
+	TCY	6	
+	RBIT	1		(8,6).1=0	
+	TCY	8		Set GO mode flag	
+	SBIT	1		(8,8).1=1	
+	TCY	7	
+	TMA			A=(8,7)	
+	LDX	5	
+	TCY	13	
+	TCMIY	0		(5,13)=0	
+	CALLL	CORRSSPL	Page 11, DAM 0~3 = 0	
+	
+	LDP	2	
+	ALEC	1		Spell ?	
+	BRANCH	USPELL		Page 2	
+	LDP	8	
+	ALEC	3		Learn ?	
+	BRANCH	ULRN+1		Page 8	
+	LDP	11	
+	ALEC	5		Game #1/Hangman ?	
+	BRANCH	CORR+1
+
+Should never reach here, random word list code is only called in those previous modes (not for secrect code/random letter)	
+	
+CLEAR	TCY	0		Clears display buffer
+HERE	LDX	0		(0,0)=1 (1,0)=11 (0,1)=1 (1,1)=11 … (0,7)=1 (1,7)=11
+	TCMIY	1		(X,Y) = 1	
+	DYN			Keep Y same	
+	LDX	1	
+	TCMIY	11		(X,Y) = 11, Y++	
+	YNEC	8	
+	BRANCH	HERE		Branch if Y!=8	
+	TCY	0		Y=0	
+	TCMIY	12		(1,0) = 12	
+	LDX	0	
+	TCY	11	
+	TCMIY	0		(0,11) = 0	
+	RETN
+	
+REPLAY	BRANCH	RANRTN	
+	
+ENTER	LDX	8		Process enter key press	
+	TCY	7		FLAG	
+	MNEZ			Spell mode ?	
+	BRANCH	TST4A3		No	
+	BRANCH	SPACE-3		Yes	
+	
+TST4A3	TMY
+	YNEC	3		Spell it mode ?	
+	BRANCH	TST4A6		No	
+	BRANCH	SPACE-3		Yes	
+TST4A6	YNEC	6		Game 2 mode ?	
+	BRANCH	SPACE-3		No	
+	BL	CRYPTO		Yes	
+	
+Test for cursor position. First position ? Return. Else replace cursor with space	
+SPACE-3	TCY	7		Last char	
+	LDX	1	
+SPACE-2	CLA			A=11	
+	ACACC	11	
+	MNEA			Last char MSB = 11 ?	
+	BRANCH	CHAROR+		No	
+	LDX	0		Yes	
+	MNEZ			Last char LSB <> 0 (can only be 1 normally)	
+	BRANCH	SPACE-1		Last char = 1/11	
+	BRANCH	CHAR		Last char = 0/11	
+	
+CHAROR+	LDX	1	
+	ACACC	1	
+	MNEA			Last char MSB = 12 ?	
+	BRANCH	CHAR		No	
+	LDX	0		Yes	
+	MNEZ			Last char LSB <> 0 (can only be 1 normally)	
+	BRANCH	CUR-1		Last char = 1/11	
+	BRANCH	CHAR		Last char = 0/11	
+CUR-1	LDX	1	
+	TCMIY	11	
+CHAR	RETN
+	BL	SPLENTER	Go to spell routine	
+	
+SPACE-1	DYN			Search for cursor	
+	LDX	1	
+	BRANCH	SPACE-2	
+
+Loads rom addr with second wrong response then continues to next word	
+NOPHRASE
+	LDX	3		FLAG	
+	TCY	13	
+	TCMIY	3	
+	CALLL	CURLEVL	
+	TCMIY	2		ROM DCBA = 0062	
+	TCMIY	6	
+SPK4	CALLL	MEMADDR	
+	CALLL	LOADRESS	
+	CALLL	MEMADDR	
+	BL	LNKSET		Always branch	
+	
+F-SCORE	LDX	2		RETNS8CH FLAG	
+	TCY	14	
+	TCMIY	1	
+	TCMIY	0	
+	CALLL	CURLEVL		Zero ROM ADDR	
+	LDP	6	
+	ALEC	9	
+	BRANCH	F2		No, next word ?	
+	LDX	0		Tried 10 words ?:	
+	TCY	2	
+	TCMIY	2		(0,2) = 2	
+	LDX	1	
+	TCY	1	
+	TCMIY	1		(1,1)=1	
+	TCMIY	0		(1,2)=0	
+	LDX	2	
+	TCY	14	
+	IMAC
+	BL	TONE22	

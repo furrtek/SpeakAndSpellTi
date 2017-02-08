@@ -1,0 +1,9 @@
+R lines:
+R0~R7: VFD characters grids
+R10: Synthesizer clock
+R11: ?
+R12: Synthesizer CS ?
+R13: Suicide
+R15: VFD filaments
+
+K lines:

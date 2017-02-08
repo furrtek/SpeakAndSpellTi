@@ -1,5 +1,14 @@
-# SpeakAndSpellTi
-Commented source code of Texas Instrument's original Speak and Spellâ„¢. Picked up from [US patent #4189779](http://www.google.com/patents/US4189779).
+## EN
+This repo is a documented copy of the Speak & Spell TMS1000 source code as seen in US patent #4189779.
+Most of the original comments were copied and many more were added with clarifications.
+
+Also provided are maps for ROM (cartridges), RAM and I/Os.
+
+## FR
+Ce repo est une copie documentée du code source TMS1000 du brevet US #4189779 sur la Dictée Magique de Texas Instruments.
+La plupart des commentaires d'origine ont ete recopiés et de nombreux autres ont ete ajoutés.
+
+Une carte de la ROM (cartouches), de la RAM et des E/Ss est aussi fournie.
 
 ## Labels map
 |    Label    | Page # |   Description   |
